@@ -2,7 +2,7 @@
 
 import "leaflet/dist/leaflet.css";
 import { CircleMarker, MapContainer, Popup, TileLayer } from "react-leaflet";
-import { STATUSES, STATUS_COLOR, TYPES, fmtDate, type PublicComplaint } from "@/lib/complaints";
+import { STATUSES, STATUS_STYLE, TYPES, fmtDate, type PublicComplaint } from "@/lib/complaints";
 
 const MYSURU: [number, number] = [12.2958, 76.6394];
 
@@ -21,7 +21,7 @@ export default function ComplaintMap({ pins }: { pins: PublicComplaint[] }) {
           key={p.tracking_id}
           center={[p.latitude!, p.longitude!]}
           radius={9}
-          pathOptions={{ color: "#ffffff", weight: 2, fillColor: STATUS_COLOR[p.status], fillOpacity: 0.95 }}
+          pathOptions={{ color: "#ffffff", weight: 2, fillColor: STATUS_STYLE[p.status].color, fillOpacity: 0.95 }}
         >
           <Popup>
             <p className="font-semibold">{TYPES[p.complaint_type]}</p>

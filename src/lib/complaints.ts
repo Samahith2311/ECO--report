@@ -1,3 +1,5 @@
+import type { IconName } from "@/components/ui/icons";
+
 // Shared labels/colours for the two DB enums (see supabase/migrations/*_init_ecoreport.sql).
 export const TYPES = {
   air_pollution: "Air pollution",
@@ -18,13 +20,17 @@ export const STATUSES = {
 } as const;
 export type ComplaintStatus = keyof typeof STATUSES;
 
-// Dark enough for text on a light tint (badges) and distinct on the map/charts.
-export const STATUS_COLOR: Record<ComplaintStatus, string> = {
-  submitted: "#475569",
-  under_review: "#b45309",
-  action_taken: "#1d4ed8",
-  resolved: "#276540",
-  rejected: "#b91c1c",
+// One style per status, used by badges, timelines, charts and map pins, so a status always
+// looks the same. Earthy tones that sit well next to the green brand:
+// - color: dots, bars and map pins (at least 3:1 against white)
+// - text + tint: badge label on its light background (at least 6:1, WCAG AA needs 4.5:1)
+// - icon: a second cue next to the colour, for colour-blind readers
+export const STATUS_STYLE: Record<ComplaintStatus, { color: string; text: string; tint: string; icon: IconName }> = {
+  submitted: { color: "#55626a", text: "#3f4a50", tint: "#eef1f2", icon: "send" }, // slate
+  under_review: { color: "#c0841c", text: "#7a4a00", tint: "#fbf1dc", icon: "search" }, // amber
+  action_taken: { color: "#1585a3", text: "#0d5a73", tint: "#e3f2f7", icon: "zap" }, // teal
+  resolved: { color: "#2e7a36", text: "#1f5a2b", tint: "#e4f1e6", icon: "check" }, // green
+  rejected: { color: "#c4442f", text: "#9b2c1c", tint: "#fbe7e3", icon: "x" }, // brick
 };
 
 // Date-only values ("2026-11-21") parse as UTC midnight, so format in UTC to avoid an off-by-one day.

@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { STATUSES, STATUS_COLOR, TYPES, type ComplaintStatus } from "@/lib/complaints";
+import { STATUSES, STATUS_STYLE, TYPES, type ComplaintStatus } from "@/lib/complaints";
 import type { Stats } from "@/lib/stats";
 
 const BRAND = "#357d4f";
@@ -45,7 +45,7 @@ export default function Charts({ stats }: { stats: Stats }) {
   const byStatus: Point[] = Object.entries(STATUSES).map(([k, name]) => ({
     name,
     count: stats.byStatus[k] ?? 0,
-    color: STATUS_COLOR[k as ComplaintStatus],
+    color: STATUS_STYLE[k as ComplaintStatus].color,
   }));
   const monthly: Point[] = stats.monthly.map((m) => ({ name: monthLabel(m.month), count: m.count }));
 

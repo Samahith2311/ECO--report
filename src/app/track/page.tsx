@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import StatusBadge from "@/components/status-badge";
+import StatusBadge from "@/components/ui/status-badge";
 import {
   TYPES,
   STATUSES,
-  STATUS_COLOR,
+  STATUS_STYLE,
   fmtDate,
   fmtDateTime,
   type ComplaintStatus,
@@ -95,7 +95,7 @@ export default async function TrackPage({ searchParams }: PageProps<"/track">) {
                 <li key={i} className="relative">
                   <span
                     className="absolute -left-[27px] top-1 h-3 w-3 rounded-full ring-4 ring-white"
-                    style={{ backgroundColor: STATUS_COLOR[h.new_status] }}
+                    style={{ backgroundColor: STATUS_STYLE[h.new_status].color }}
                     aria-hidden="true"
                   />
                   <p className="text-sm font-semibold">{STATUSES[h.new_status]}</p>

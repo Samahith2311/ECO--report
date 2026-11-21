@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import StatusBadge from "@/components/status-badge";
+import StatusBadge from "@/components/ui/status-badge";
 import { TYPES, STATUSES, fmtDate, type ComplaintStatus, type ComplaintType } from "@/lib/complaints";
 import SignOut from "./sign-out";
 

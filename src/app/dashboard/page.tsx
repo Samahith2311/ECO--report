@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { computeStats } from "@/lib/stats";
-import { STATUSES, STATUS_COLOR, type ComplaintStatus, type PublicComplaint } from "@/lib/complaints";
+import { STATUSES, STATUS_STYLE, type ComplaintStatus, type PublicComplaint } from "@/lib/complaints";
 import Charts from "./charts";
 import ComplaintMap from "./map-loader";
 
@@ -73,7 +73,7 @@ export default async function DashboardPage() {
                 <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm">
                   {(Object.keys(STATUSES) as ComplaintStatus[]).map((s) => (
                     <li key={s} className="flex items-center gap-2">
-                      <span className="h-3 w-3 rounded-full" style={{ backgroundColor: STATUS_COLOR[s] }} aria-hidden="true" />
+                      <span className="h-3 w-3 rounded-full" style={{ backgroundColor: STATUS_STYLE[s].color }} aria-hidden="true" />
                       {STATUSES[s]}
                     </li>
                   ))}
