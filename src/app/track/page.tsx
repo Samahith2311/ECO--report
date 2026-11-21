@@ -40,7 +40,7 @@ const STATUS_MEANING: Record<ComplaintStatus, string> = {
   under_review: "The authorities are looking into your complaint.",
   action_taken: "The authorities have taken action. See what they did below.",
   resolved: "The problem has been resolved. Thank you for reporting it.",
-  rejected: "The authorities closed this complaint without action.",
+  rejected: "The authorities closed this complaint without taking action.",
 };
 
 export default async function TrackPage({ searchParams }: PageProps<"/track">) {
@@ -151,6 +151,7 @@ function Result({ data }: { data: Tracked }) {
 
         <p className="mt-4 rounded-control px-4 py-3 text-base font-medium" style={{ backgroundColor: s.tint, color: s.text }}>
           {STATUS_MEANING[c.status]}
+          {c.status === "rejected" && data.interventions.length > 0 && " Their reason is listed under their actions below."}
         </p>
 
         <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-3">

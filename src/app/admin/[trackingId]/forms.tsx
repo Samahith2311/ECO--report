@@ -4,33 +4,84 @@ import { useCallback, useState, useTransition } from "react";
 import { STATUSES, type ComplaintStatus } from "@/lib/complaints";
 import { Icon } from "@/components/ui/icons";
 import Toast from "@/components/ui/toast";
-import { addIntervention, updateStatus } from "../actions";
+import { addIntervention, rejectComplaint, updateStatus } from "../actions";
 
 type ToastState = { message: string; tone: "success" | "error" } | null;
 
-// These forms call the same Server Actions as before. The try/catch turns a failure into a
-// friendly toast (instead of the error page), so whatever the admin typed is kept.
+// These forms call Server Actions that return { ok, error }. Errors are shown in a friendly
+// message under the form (never the raw database error), and whatever the admin typed is kept.
 
-export function StatusForm({ trackingId, current }: { trackingId: string; current: ComplaintStatus }) {
+const DEPARTMENTS = [
+  "Mysuru City Corporation",
+  "Karnataka State Pollution Control Board",
+  "Forest Department",
+  "Mysuru City Police",
+];
+
+// Suggestions for a department field (any name can still be typed).
+function DepartmentOptions({ id }: { id: string }) {
+  return (
+    <datalist id={id}>
+      {DEPARTMENTS.map((d) => (
+        <option key={d} value={d} />
+      ))}
+    </datalist>
+  );
+}
+
+function FormError({ message }: { message: string | null }) {
+  if (!message) return null;
+  return (
+    <p role="alert" className="flex items-start gap-2 rounded-control bg-danger-tint p-3 text-sm font-medium text-danger">
+      <Icon name="alert" className="mt-0.5 h-4 w-4" />
+      {message}
+    </p>
+  );
+}
+
+export function StatusForm({
+  complaintId,
+  trackingId,
+  current,
+}: {
+  complaintId: string;
+  trackingId: string;
+  current: ComplaintStatus;
+}) {
   const [value, setValue] = useState<ComplaintStatus>(current);
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
   const clearToast = useCallback(() => setToast(null), []);
+
+  const unchanged = value === current;
+  // Choosing "Rejected" asks for a reason, which is saved as an action the reporter can read.
+  const rejecting = value === "rejected" && !unchanged;
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const wasRejecting = rejecting;
+    const newLabel = STATUSES[value];
+    setError(null);
     startTransition(async () => {
       try {
-        await updateStatus(trackingId, formData);
-        setToast({ message: `Status changed to ${STATUSES[value]}`, tone: "success" });
+        const result = wasRejecting
+          ? await rejectComplaint(complaintId, trackingId, formData)
+          : await updateStatus(trackingId, formData);
+        if (result.ok) {
+          setToast({
+            message: wasRejecting ? "Complaint rejected. The reason is shown to the reporter." : `Status changed to ${newLabel}`,
+            tone: "success",
+          });
+        } else {
+          setError(result.error);
+        }
       } catch {
-        setToast({ message: "Couldn't change the status. Please try again.", tone: "error" });
+        setError("Couldn't change the status. Please try again.");
       }
     });
   }
-
-  const unchanged = value === current;
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
@@ -42,7 +93,10 @@ export function StatusForm({ trackingId, current }: { trackingId: string; curren
           id="status"
           name="status"
           value={value}
-          onChange={(e) => setValue(e.target.value as ComplaintStatus)}
+          onChange={(e) => {
+            setValue(e.target.value as ComplaintStatus);
+            setError(null);
+          }}
           aria-describedby="status-hint"
           className="field"
         >
@@ -53,24 +107,64 @@ export function StatusForm({ trackingId, current }: { trackingId: string; curren
           ))}
         </select>
         <p id="status-hint" className="hint">
-          {unchanged ? "This is the current status." : "The reporter sees the new status on the track page."}
+          {unchanged
+            ? "This is the current status."
+            : rejecting
+              ? "Rejecting needs a reason. Fill it in below."
+              : "The reporter sees the new status on the track page."}
         </p>
       </div>
+
+      {rejecting && (
+        <fieldset className="space-y-3 rounded-control border border-danger/25 bg-danger-tint/50 p-3">
+          <legend className="sr-only">Reason for rejecting</legend>
+          <div>
+            <label htmlFor="reason" className="label">
+              Reason for rejecting
+            </label>
+            <textarea
+              id="reason"
+              name="reason"
+              required
+              minLength={3}
+              maxLength={900}
+              rows={3}
+              placeholder="e.g. Outside city limits. Forwarded to the local Gram Panchayat."
+              aria-describedby="reason-hint"
+              className="field"
+            />
+            <p id="reason-hint" className="hint">
+              The reporter sees this reason on the track page.
+            </p>
+          </div>
+          <div>
+            <label htmlFor="reject-department" className="label">
+              Department
+            </label>
+            <input
+              id="reject-department"
+              name="department"
+              required
+              minLength={2}
+              maxLength={200}
+              list="reject-department-options"
+              autoComplete="off"
+              className="field"
+            />
+            <DepartmentOptions id="reject-department-options" />
+          </div>
+        </fieldset>
+      )}
+
+      <FormError message={error} />
       <button type="submit" className="btn btn-primary w-full" disabled={pending || unchanged}>
         {pending && <Icon name="spinner" className="h-4 w-4 animate-spin" />}
-        {pending ? "Saving..." : "Save status"}
+        {pending ? "Saving..." : rejecting ? "Reject with this reason" : "Save status"}
       </button>
       <Toast message={toast?.message ?? null} tone={toast?.tone} onClose={clearToast} />
     </form>
   );
 }
-
-const DEPARTMENTS = [
-  "Mysuru City Corporation",
-  "Karnataka State Pollution Control Board",
-  "Forest Department",
-  "Mysuru City Police",
-];
 
 export function InterventionForm({ complaintId, trackingId }: { complaintId: string; trackingId: string }) {
   const [pending, startTransition] = useTransition();
@@ -130,12 +224,7 @@ export function InterventionForm({ complaintId, trackingId }: { complaintId: str
             autoComplete="off"
             className="field"
           />
-          {/* suggestions only: any department name can be typed */}
-          <datalist id="department-options">
-            {DEPARTMENTS.map((d) => (
-              <option key={d} value={d} />
-            ))}
-          </datalist>
+          <DepartmentOptions id="department-options" />
         </div>
         <div>
           <label htmlFor="date" className="label">
@@ -161,12 +250,7 @@ export function InterventionForm({ complaintId, trackingId }: { complaintId: str
         </label>
         <textarea id="remarks" name="remarks" rows={2} className="field" />
       </div>
-      {error && (
-        <p role="alert" className="flex items-start gap-2 rounded-control bg-danger-tint p-3 text-sm font-medium text-danger">
-          <Icon name="alert" className="mt-0.5 h-4 w-4" />
-          {error}
-        </p>
-      )}
+      <FormError message={error} />
       <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={pending}>
         {pending ? <Icon name="spinner" className="h-4 w-4 animate-spin" /> : <Icon name="check" className="h-4 w-4" />}
         {pending ? "Saving..." : "Record action"}

@@ -83,7 +83,7 @@ export default async function AdminComplaintPage({ params }: PageProps<"/admin/[
               Change status
             </h2>
             <div className="mt-4">
-              <StatusForm key={complaint.status} trackingId={complaint.tracking_id} current={complaint.status} />
+              <StatusForm complaintId={complaint.id} trackingId={complaint.tracking_id} current={complaint.status} />
             </div>
             <h3 className="mt-6 border-t border-line pt-5 font-sans text-sm font-semibold text-muted">History</h3>
             <div className="mt-4">
