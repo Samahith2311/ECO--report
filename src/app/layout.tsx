@@ -56,7 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="border-t border-line">
           <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
             <p>EcoReport is a prototype built for an Environmental Studies course project in Mysuru.</p>
-            <nav aria-label="Footer" className="-mx-3 flex flex-wrap">
+            <nav aria-label="Footer" className="-mx-3 flex shrink-0 flex-wrap">
               <Link href="/dashboard" className="inline-flex min-h-11 items-center rounded-control px-3 hover:text-brand-800">
                 Public dashboard
               </Link>

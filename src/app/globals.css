@@ -73,30 +73,32 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Base
+   Base (in @layer base so utility classes on an element can still override it)
    --------------------------------------------------------------------------- */
-body {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-}
+@layer base {
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
 
-h1,
-h2,
-h3 {
-  font-family: var(--font-display);
-  letter-spacing: -0.01em;
-  text-wrap: balance;
-}
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
 
-::selection {
-  background: var(--color-brand-200);
-}
+  ::selection {
+    background: var(--color-brand-200);
+  }
 
-/* One clear focus ring for everything you can tab to (3px, 6.4:1 on paper). */
-:focus-visible {
-  outline: 3px solid var(--color-brand-600);
-  outline-offset: 2px;
+  /* One clear focus ring for everything you can tab to (3px, 6.4:1 on paper). */
+  :focus-visible {
+    outline: 3px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
 }
 
 /* Respect the "reduce motion" OS setting: no animations or smooth scrolling. */
