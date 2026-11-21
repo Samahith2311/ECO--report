@@ -22,9 +22,25 @@ export async function updateStatus(trackingId: string, formData: FormData) {
   revalidatePath(`/admin/${trackingId}`);
 }
 
-export async function addIntervention(complaintId: string, trackingId: string, formData: FormData) {
+// What an admin form gets back: ok, or a friendly message to show (never the raw database error).
+export type ActionResult = { ok: true } | { ok: false; error: string };
+
+// Today's date as YYYY-MM-DD in Indian time (the app serves Mysuru), whatever the server's time zone.
+function todayInIndia() {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+}
+
+export async function addIntervention(
+  complaintId: string,
+  trackingId: string,
+  formData: FormData,
+): Promise<ActionResult> {
   const supabase = await requireAdmin();
   const date = String(formData.get("date") ?? "");
+  // The date picker already blocks future dates; this check also covers a form sent without it.
+  if (date && date > todayInIndia()) {
+    return { ok: false, error: "The action date can't be in the future. Pick today or an earlier date." };
+  }
   const { error } = await supabase.from("interventions").insert({
     complaint_id: complaintId,
     action_taken: String(formData.get("action")).trim(),
@@ -32,6 +48,7 @@ export async function addIntervention(complaintId: string, trackingId: string, f
     remarks: String(formData.get("remarks") ?? "").trim() || null,
     ...(date && { intervention_date: date }), // empty -> the database uses today
   });
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, error: "Couldn't save the action. Check the fields and try again." };
   revalidatePath(`/admin/${trackingId}`);
+  return { ok: true };
 }

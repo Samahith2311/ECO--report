@@ -74,6 +74,7 @@ const DEPARTMENTS = [
 
 export function InterventionForm({ complaintId, trackingId }: { complaintId: string; trackingId: string }) {
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
   const clearToast = useCallback(() => setToast(null), []);
 
@@ -81,13 +82,18 @@ export function InterventionForm({ complaintId, trackingId }: { complaintId: str
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
+    setError(null);
     startTransition(async () => {
       try {
-        await addIntervention(complaintId, trackingId, formData);
-        form.reset(); // clear the form only when saving worked
-        setToast({ message: "Action recorded", tone: "success" });
+        const result = await addIntervention(complaintId, trackingId, formData);
+        if (result.ok) {
+          form.reset(); // clear the form only when saving worked
+          setToast({ message: "Action recorded", tone: "success" });
+        } else {
+          setError(result.error); // e.g. a future date; the typed text stays in the form
+        }
       } catch {
-        setToast({ message: "Couldn't save the action. Your text is still here, please try again.", tone: "error" });
+        setError("Couldn't save the action. Your text is still here, please try again.");
       }
     });
   }
@@ -155,6 +161,12 @@ export function InterventionForm({ complaintId, trackingId }: { complaintId: str
         </label>
         <textarea id="remarks" name="remarks" rows={2} className="field" />
       </div>
+      {error && (
+        <p role="alert" className="flex items-start gap-2 rounded-control bg-danger-tint p-3 text-sm font-medium text-danger">
+          <Icon name="alert" className="mt-0.5 h-4 w-4" />
+          {error}
+        </p>
+      )}
       <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={pending}>
         {pending ? <Icon name="spinner" className="h-4 w-4 animate-spin" /> : <Icon name="check" className="h-4 w-4" />}
         {pending ? "Saving..." : "Record action"}
