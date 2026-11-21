@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   EcoReport theme. Tailwind v4 turns every --color-* / --font-* token below into
+   utility classes, e.g. --color-brand-600 -> bg-brand-600, text-brand-600.
+   --------------------------------------------------------------------------- */
+@theme {
+  --font-sans: var(--font-public-sans), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+
+  /* Page + text */
+  --color-paper: #f5f7f1;
+  --color-ink: #1b2a21;
+  --color-muted: #566a5d;
+  --color-line: #d9e2d5;
+
+  /* Forest-green brand scale (600 is the main button/link colour) */
+  --color-brand-50: #eef6ef;
+  --color-brand-100: #d9ebdc;
+  --color-brand-200: #b4d6bb;
+  --color-brand-300: #86bb92;
+  --color-brand-400: #55986a;
+  --color-brand-500: #357d4f;
+  --color-brand-600: #276540;
+  --color-brand-700: #1f5034;
+  --color-brand-800: #1b402b;
+  --color-brand-900: #16331f;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* ---------------------------------------------------------------------------
+   Small shared building blocks, so pages stay readable.
+   Use as: <button className="btn btn-primary">
+   --------------------------------------------------------------------------- */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold
+      transition-colors cursor-pointer
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600
+      disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .btn-secondary {
+    @apply border border-brand-600 bg-white text-brand-700 hover:bg-brand-50;
+  }
+
+  .card {
+    @apply rounded-xl border border-line bg-white p-5 shadow-sm;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+  /* inputs, selects and textareas */
+  .field {
+    @apply w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink
+      placeholder:text-muted/70
+      focus-visible:border-brand-600 focus-visible:outline-2 focus-visible:outline-brand-600/30;
+  }
+  .field-error {
+    @apply mt-1 text-sm text-red-700;
+  }
+}
