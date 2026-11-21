@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
+import Form from "next/form";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import StatusBadge from "@/components/ui/status-badge";
-import { TYPES, STATUSES, fmtDate, type ComplaintStatus, type ComplaintType } from "@/lib/complaints";
+import { TYPES, STATUSES, STATUS_STYLE, type ComplaintStatus } from "@/lib/complaints";
+import PageHeader from "@/components/ui/page-header";
+import RetryButton from "@/components/ui/retry-button";
+import { EmptyState, ErrorState } from "@/components/ui/states";
 import SignOut from "./sign-out";
+import ComplaintTable, { type AdminRow } from "./complaint-table";
 
 export const metadata: Metadata = { title: "Admin: complaints" };
 
-type Row = {
-  tracking_id: string;
-  complaint_type: ComplaintType;
-  location_text: string;
-  complaint_date: string;
-  status: ComplaintStatus;
-  reporter_name: string;
-};
-
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+
+// Builds /admin?status=...&type=... keeping only the filters that are set.
+const filterHref = (status?: string, type?: string) => {
+  const p = new URLSearchParams();
+  if (status) p.set("status", status);
+  if (type) p.set("type", type);
+  const q = p.toString();
+  return q ? `/admin?${q}` : "/admin";
+};
 
 export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   const supabase = await requireAdmin();
@@ -34,68 +38,105 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   if (status && Object.hasOwn(STATUSES, status)) query = query.eq("status", status);
   if (type && Object.hasOwn(TYPES, type)) query = query.eq("complaint_type", type);
   const { data, error } = await query;
-  const rows = (data ?? []) as Row[];
+  const rows = (data ?? []) as AdminRow[];
+
+  const activeStatus = status && Object.hasOwn(STATUSES, status) ? status : undefined;
+  const activeType = type && Object.hasOwn(TYPES, type) ? type : undefined;
+  const filtered = Boolean(activeStatus || activeType);
+
+  const chip = "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors";
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-semibold text-brand-900">Complaints</h1>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
+      <PageHeader title="Complaints" description="Open a complaint to change its status or record an action.">
         <SignOut />
+      </PageHeader>
+
+      {/* Filters: status chips apply at once; type uses a small form */}
+      <div className="mt-8 space-y-4">
+        <nav aria-label="Filter by status" className="-mx-4 overflow-x-auto px-4">
+          <ul className="flex gap-2 sm:flex-wrap">
+            <li>
+              <Link
+                href={filterHref(undefined, activeType)}
+                aria-current={!activeStatus ? "page" : undefined}
+                className={`${chip} ${!activeStatus ? "border-brand-600 bg-brand-600 text-white" : "border-field bg-surface text-ink hover:bg-brand-50"}`}
+              >
+                All statuses
+              </Link>
+            </li>
+            {(Object.keys(STATUSES) as ComplaintStatus[]).map((s) => {
+              const active = activeStatus === s;
+              return (
+                <li key={s}>
+                  <Link
+                    href={filterHref(s, activeType)}
+                    aria-current={active ? "page" : undefined}
+                    className={`${chip} whitespace-nowrap ${active ? "border-brand-600 bg-brand-600 text-white" : "border-field bg-surface text-ink hover:bg-brand-50"}`}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 rounded-full ring-2 ring-white"
+                      style={{ backgroundColor: STATUS_STYLE[s].color }}
+                      aria-hidden="true"
+                    />
+                    {STATUSES[s]}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <Form action="/admin" className="flex flex-wrap items-end gap-3">
+          {activeStatus && <input type="hidden" name="status" value={activeStatus} />}
+          <div className="w-full sm:w-64">
+            <label htmlFor="type" className="label">
+              Type of problem
+            </label>
+            <select id="type" name="type" defaultValue={activeType ?? ""} className="field">
+              <option value="">All types</option>
+              {Object.entries(TYPES).map(([v, l]) => (
+                <option key={v} value={v}>
+                  {l}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" className="btn btn-secondary">
+            Apply
+          </button>
+          {filtered && (
+            <Link href="/admin" className="btn btn-ghost">
+              Clear filters
+            </Link>
+          )}
+        </Form>
       </div>
 
-      <form className="mt-6 flex flex-wrap items-end gap-3">
-        <div>
-          <label htmlFor="status" className="label">Status</label>
-          <select id="status" name="status" defaultValue={status ?? ""} className="field">
-            <option value="">All statuses</option>
-            {Object.entries(STATUSES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
+      {error ? (
+        <div className="mt-6">
+          <ErrorState title="We couldn't load the complaints" action={<RetryButton />}>
+            Please try again. If it keeps happening, sign out and sign in again.
+          </ErrorState>
         </div>
-        <div>
-          <label htmlFor="type" className="label">Type</label>
-          <select id="type" name="type" defaultValue={type ?? ""} className="field">
-            <option value="">All types</option>
-            {Object.entries(TYPES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
+      ) : rows.length === 0 ? (
+        <div className="card mt-6">
+          <EmptyState
+            title={filtered ? "No complaints match these filters" : "No complaints yet"}
+            action={
+              filtered ? (
+                <Link href="/admin" className="btn btn-secondary">
+                  Clear filters
+                </Link>
+              ) : undefined
+            }
+          >
+            {filtered ? "Try another status or type." : "New reports from the public will appear here."}
+          </EmptyState>
         </div>
-        <button type="submit" className="btn btn-primary">Filter</button>
-        <Link href="/admin" className="btn btn-secondary">Clear</Link>
-      </form>
-
-      {error && <p className="field-error mt-4" role="alert">Could not load complaints: {error.message}</p>}
-      <p className="mt-6 text-sm text-muted">{rows.length} complaint{rows.length === 1 ? "" : "s"}</p>
-
-      <div className="card mt-2 overflow-x-auto !p-0">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b border-line bg-brand-50 text-muted">
-            <tr>
-              <th className="px-4 py-3 font-medium">Tracking ID</th>
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Location</th>
-              <th className="px-4 py-3 font-medium">Date</th>
-              <th className="px-4 py-3 font-medium">Reporter</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.tracking_id} className="border-b border-line last:border-0 hover:bg-brand-50/50">
-                <td className="px-4 py-3 font-mono">
-                  <Link href={`/admin/${r.tracking_id}`} className="font-semibold text-brand-700 underline">{r.tracking_id}</Link>
-                </td>
-                <td className="px-4 py-3">{TYPES[r.complaint_type]}</td>
-                <td className="px-4 py-3">{r.location_text}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{fmtDate(r.complaint_date)}</td>
-                <td className="px-4 py-3">{r.reporter_name}</td>
-                <td className="px-4 py-3"><StatusBadge status={r.status} /></td>
-              </tr>
-            ))}
-            {rows.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-muted">No complaints match these filters.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      ) : (
+        <ComplaintTable rows={rows} />
+      )}
     </div>
   );
 }
