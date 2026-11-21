@@ -25,7 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Skip link: first thing a keyboard user reaches, hidden until focused */}
         <a
           href="#main"
-          className="btn btn-primary sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[1200]"
+          className="btn btn-primary sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[1200] focus:px-5"
         >
           Skip to main content
         </a>
