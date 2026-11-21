@@ -38,6 +38,14 @@ export const ICON_PATHS = {
   arrowRight: "M5 12h14M12 5l7 7-7 7",
   arrowLeft: "M19 12H5M12 19l-7-7 7-7",
   chevronRight: "m9 18 6-6-6-6",
+  // complaint types
+  wind: "M12.8 19.6A2 2 0 1 0 14 16H2M17.5 8a2.5 2.5 0 1 1 2 4H2M9.8 4.4A2 2 0 1 1 11 8H2",
+  droplet:
+    "M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z",
+  trash: "M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
+  volume: "M11 5 6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14",
+  tree: "M12 22v-6M17 16H7l3-4H8l4-7 4 7h-2l3 4z",
+  more: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM8 12h.01M12 12h.01M16 12h.01",
 } as const;
 
 export type IconName = keyof typeof ICON_PATHS;

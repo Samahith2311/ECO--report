@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import PageHeader from "@/components/ui/page-header";
 import ReportForm from "./report-form";
 
 export const metadata: Metadata = { title: "Report a complaint" };
 
 export default function ReportPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-3xl font-semibold text-brand-900">Report a complaint</h1>
-      <p className="mt-2 text-muted">
-        Describe the problem and where it is. You get a tracking ID to follow what happens next.
-      </p>
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
+      <PageHeader
+        title="Report a problem"
+        description="Three short steps. At the end you get a tracking ID to follow what happens next."
+      />
       <ReportForm />
     </div>
   );

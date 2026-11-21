@@ -11,6 +11,16 @@ export const TYPES = {
 } as const;
 export type ComplaintType = keyof typeof TYPES;
 
+// Icon shown next to each complaint type (report form, admin table).
+export const TYPE_ICON: Record<ComplaintType, IconName> = {
+  air_pollution: "wind",
+  water_pollution: "droplet",
+  illegal_dumping: "trash",
+  noise: "volume",
+  deforestation: "tree",
+  other: "more",
+};
+
 export const STATUSES = {
   submitted: "Submitted",
   under_review: "Under review",

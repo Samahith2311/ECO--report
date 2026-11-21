@@ -55,8 +55,10 @@
 
   /* Motion: short and subtle (turned off by prefers-reduced-motion below) */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
-  --animate-fade-up: fade-up 320ms var(--ease-out-soft) both;
-  --animate-pop: pop 260ms var(--ease-out-soft) both;
+  /* "backwards" = no transform left behind after the animation (a leftover transform would
+     break position: fixed children such as the toast) */
+  --animate-fade-up: fade-up 320ms var(--ease-out-soft) backwards;
+  --animate-pop: pop 260ms var(--ease-out-soft) backwards;
 
   @keyframes fade-up {
     from {
@@ -76,6 +78,11 @@
    Base (in @layer base so utility classes on an element can still override it)
    --------------------------------------------------------------------------- */
 @layer base {
+  /* When focus or a #link scrolls the page, keep the target clear of the sticky header. */
+  html {
+    scroll-padding-top: 5rem;
+  }
+
   body {
     background: var(--color-paper);
     color: var(--color-ink);
