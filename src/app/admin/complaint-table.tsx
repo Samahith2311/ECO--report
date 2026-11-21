@@ -58,8 +58,8 @@ export default function ComplaintTable({ rows }: { rows: AdminRow[] }) {
         <p className="card mt-4 text-center text-base text-muted">No complaints match &ldquo;{q}&rdquo;.</p>
       ) : (
         <>
-          {/* Phones: one card per complaint */}
-          <ul className="mt-4 space-y-3 md:hidden">
+          {/* Phones and tablets: one card per complaint (2 columns from 640px) */}
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:hidden">
             {shown.map((r) => (
               <li key={r.tracking_id}>
                 <Link
@@ -83,8 +83,8 @@ export default function ComplaintTable({ rows }: { rows: AdminRow[] }) {
             ))}
           </ul>
 
-          {/* Wider screens: table. The wrapper scrolls, so the header row stays visible. */}
-          <div className="card mt-4 hidden max-h-[calc(100vh-16rem)] min-h-64 overflow-auto p-0 md:block sm:p-0">
+          {/* Desktop (1024px+): table. The wrapper scrolls, so the header row stays visible. */}
+          <div className="card mt-4 hidden max-h-[calc(100vh-16rem)] min-h-64 overflow-auto p-0 lg:block sm:p-0">
             <table className="table">
               <caption className="sr-only">Complaints, newest first. Select a tracking ID to open it.</caption>
               <thead>

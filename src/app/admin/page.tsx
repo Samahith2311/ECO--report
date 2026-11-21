@@ -44,7 +44,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   const activeType = type && Object.hasOwn(TYPES, type) ? type : undefined;
   const filtered = Boolean(activeStatus || activeType);
 
-  const chip = "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors";
+  const chip = "inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border px-3.5 text-sm font-semibold transition-colors sm:px-4";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
@@ -54,8 +54,8 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
 
       {/* Filters: status chips apply at once; type uses a small form */}
       <div className="mt-8 space-y-4">
-        <nav aria-label="Filter by status" className="-mx-4 overflow-x-auto px-4">
-          <ul className="flex gap-2 sm:flex-wrap">
+        <nav aria-label="Filter by status">
+          <ul className="flex flex-wrap gap-2">
             <li>
               <Link
                 href={filterHref(undefined, activeType)}
@@ -72,7 +72,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
                   <Link
                     href={filterHref(s, activeType)}
                     aria-current={active ? "page" : undefined}
-                    className={`${chip} whitespace-nowrap ${active ? "border-brand-600 bg-brand-600 text-white" : "border-field bg-surface text-ink hover:bg-brand-50"}`}
+                    className={`${chip} ${active ? "border-brand-600 bg-brand-600 text-white" : "border-field bg-surface text-ink hover:bg-brand-50"}`}
                   >
                     <span
                       className="h-2.5 w-2.5 rounded-full ring-2 ring-white"
@@ -89,7 +89,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
 
         <Form action="/admin" className="flex flex-wrap items-end gap-3">
           {activeStatus && <input type="hidden" name="status" value={activeStatus} />}
-          <div className="w-full sm:w-64">
+          <div className="min-w-0 flex-1 sm:w-64 sm:flex-none">
             <label htmlFor="type" className="label">
               Type of problem
             </label>
