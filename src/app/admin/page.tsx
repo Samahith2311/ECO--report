@@ -37,7 +37,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   const rows = (data ?? []) as Row[];
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
+    <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-3xl font-semibold text-brand-900">Complaints</h1>
         <SignOut />
@@ -96,6 +96,6 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
           </tbody>
         </table>
       </div>
-    </main>
+    </div>
   );
 }

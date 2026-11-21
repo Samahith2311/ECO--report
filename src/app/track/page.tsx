@@ -42,7 +42,7 @@ export default async function TrackPage({ searchParams }: PageProps<"/track">) {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10">
+    <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="text-3xl font-semibold text-brand-900">Track a complaint</h1>
       <p className="mt-2 text-muted">Enter the tracking ID you received when you reported the problem.</p>
 
@@ -123,6 +123,6 @@ export default async function TrackPage({ searchParams }: PageProps<"/track">) {
           </section>
         </div>
       )}
-    </main>
+    </div>
   );
 }

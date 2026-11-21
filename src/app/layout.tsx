@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Fraunces, Public_Sans } from "next/font/google";
+import SiteNav from "@/components/site-nav";
+import { Icon } from "@/components/ui/icons";
 import "./globals.css";
 
 // Two Google fonts loaded by Next.js: a readable sans for UI, a serif for headings.
@@ -16,44 +18,54 @@ export const metadata: Metadata = {
     "Report environmental complaints in Mysuru and track how the authorities respond.",
 };
 
-const navLinks = [
-  { href: "/report", label: "Report" },
-  { href: "/track", label: "Track" },
-  { href: "/dashboard", label: "Dashboard" },
-];
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${publicSans.variable} ${fraunces.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
+        {/* Skip link: first thing a keyboard user reaches, hidden until focused */}
+        <a
+          href="#main"
+          className="btn btn-primary sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[1200]"
+        >
+          Skip to main content
+        </a>
+
         {/* z-[1100] keeps the header above Leaflet maps (their panes go up to z-index 1000) */}
         <header className="sticky top-0 z-[1100] border-b border-line bg-paper/90 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-3">
-            <Link href="/" className="flex items-center gap-2 font-display text-xl font-semibold text-brand-800">
-              {/* simple leaf icon */}
-              <svg viewBox="0 0 24 24" className="h-6 w-6 text-brand-600" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M6 18C6 10 11 5 19 5c0 8-5 13-13 13Z" />
-                <path d="M6 18 14 10" />
-              </svg>
-              EcoReport
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4">
+            <Link
+              href="/"
+              aria-label="EcoReport home"
+              className="flex min-h-11 items-center gap-2 rounded-control font-display text-lg font-semibold text-brand-800 sm:text-xl"
+            >
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-white">
+                <Icon name="leaf" className="h-5 w-5" />
+              </span>
+              {/* on very narrow phones only the logo mark shows, so the nav still fits on one row */}
+              <span className="max-[379px]:sr-only">EcoReport</span>
             </Link>
-            <nav aria-label="Main" className="flex items-center gap-1 text-sm font-medium sm:gap-2">
-              {navLinks.map((l) => (
-                <Link key={l.href} href={l.href} className="rounded-md px-2.5 py-1.5 text-ink hover:bg-brand-50 hover:text-brand-700">
-                  {l.label}
-                </Link>
-              ))}
-              <Link href="/admin" className="rounded-md border border-line px-2.5 py-1.5 text-muted hover:border-brand-600 hover:text-brand-700">
-                Admin
-              </Link>
-            </nav>
+            <SiteNav />
           </div>
         </header>
 
-        <div className="flex-1">{children}</div>
+        {/* tabIndex lets the skip link move keyboard focus here */}
+        <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
+          {children}
+        </main>
 
-        <footer className="border-t border-line py-6 text-center text-sm text-muted">
-          EcoReport is a prototype built for an Environmental Studies course project.
+        <footer className="border-t border-line">
+          <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+            <p>EcoReport is a prototype built for an Environmental Studies course project in Mysuru.</p>
+            <nav aria-label="Footer" className="-mx-3 flex flex-wrap">
+              <Link href="/dashboard" className="inline-flex min-h-11 items-center rounded-control px-3 hover:text-brand-800">
+                Public dashboard
+              </Link>
+              <Link href="/admin" className="inline-flex min-h-11 items-center gap-1.5 rounded-control px-3 hover:text-brand-800">
+                <Icon name="lock" className="h-4 w-4" />
+                Admin login
+              </Link>
+            </nav>
+          </div>
         </footer>
       </body>
     </html>

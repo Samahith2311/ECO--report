@@ -45,7 +45,7 @@ export default async function AdminComplaintPage({ params }: PageProps<"/admin/[
   ]);
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
+    <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/admin" className="text-sm text-brand-700 underline">&larr; All complaints</Link>
         <SignOut />
@@ -151,6 +151,6 @@ export default async function AdminComplaintPage({ params }: PageProps<"/admin/[
           <button type="submit" className="btn btn-primary">Add intervention</button>
         </form>
       </section>
-    </main>
+    </div>
   );
 }

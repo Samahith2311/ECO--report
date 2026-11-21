@@ -10,7 +10,7 @@ export default async function Home() {
   const stats = data ? computeStats(data as PublicComplaint[]) : null;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+    <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
       <section className="max-w-2xl">
         <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-600">
           Environmental Studies project
@@ -47,6 +47,6 @@ export default async function Home() {
           ))}
         </dl>
       )}
-    </main>
+    </div>
   );
 }
